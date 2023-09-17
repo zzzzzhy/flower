@@ -22,5 +22,5 @@ HASH=$(printf "$(git rev-parse HEAD)\n$(git diff | sha1sum)" | sha1sum | cut -c1
 
 rm -rf dist
 python -m poetry build
-docker build -f src/docker/default.Dockerfile -t flower:latest -t flower:$HASH .
+docker build -f src/docker/default.Dockerfile -t flower:latest .
 docker build -f src/docker/sshd.Dockerfile --build-arg SSH_PUBLIC_KEY="$(cat docker/ssh_key.pub)" -t flower-sshd:latest -t flower-sshd:$HASH .

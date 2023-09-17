@@ -28,13 +28,13 @@ def learn_status():
     except docker.errors.APIError as e:
         return {"code": e, "msg": "APIError..."}
 
-@app.route("/start", methods=['POST'])
+@app.route("/start", methods=['POST','GET'])
 def learn_start():
     try:
         container = client.containers.get("flwr-server")
         return {"code": 201, "msg": "Starting...","logs": container.logs(tail=100).decode('utf-8')}
     except docker.errors.NotFound:
-        container = client.containers.run('flwr-server', detach=True, name="flwr-server")
+        container = client.containers.run('flower',command='python3 server.py', detach=True, name="flwr-server")
     except docker.errors.APIError as e:
         return {"code": e, "msg": "APIError..."}
     return container.logs()
