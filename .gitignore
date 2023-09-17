@@ -182,4 +182,4 @@ app/src/main/assets
 /captures
 .externalNativeBuild
 .cxx
-.pem
+*.pem
