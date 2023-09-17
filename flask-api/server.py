@@ -34,7 +34,7 @@ def learn_start():
         container = client.containers.get("flwr-server")
         return {"code": 201, "msg": "Starting...","logs": container.logs(tail=100).decode('utf-8')}
     except docker.errors.NotFound:
-        container = client.containers.run('flower',command='python3 server.py', detach=True, name="flwr-server")
+        container = client.containers.run('flower',volumes={curdir+'/lbxx/':{'bind': '/flower', 'mode': 'rw'}}, detach=True, name="flwr-server")
     except docker.errors.APIError as e:
         return {"code": e, "msg": "APIError..."}
     return container.logs()
