@@ -3,7 +3,8 @@ import mnist
 import pytorch_lightning as pl
 from collections import OrderedDict
 import torch
-
+import torch.multiprocessing
+torch.multiprocessing.set_sharing_strategy('file_system')
 
 class FlowerClient(fl.client.NumPyClient):
     def __init__(self, model, train_loader, val_loader, test_loader):
@@ -23,15 +24,17 @@ class FlowerClient(fl.client.NumPyClient):
 
     def fit(self, parameters, config):
         self.set_parameters(parameters)
-
-        trainer = pl.Trainer(max_epochs=1)
+        # print("-------------------------fit model-------------------------",parameters,config)
+        trainer = pl.Trainer(max_epochs=1,accelerator="mps")
         trainer.fit(self.model, self.train_loader, self.val_loader)
-
+        for name, param in self.model.named_parameters():
+            if param.grad is not None:
+                print(f"{name}: {param.grad}")
         return self.get_parameters(config={}), 55000, {}
 
     def evaluate(self, parameters, config):
         self.set_parameters(parameters)
-
+        # print("-------------------------evaluate-------------------------",parameters,config)
         trainer = pl.Trainer()
         results = trainer.test(self.model, self.test_loader)
         loss = results[0]["test_loss"]
