@@ -1,0 +1,3 @@
+[submodule "flask-api/python-sdk"]
+	path = flask-api/python-sdk
+	url = https://github.com/FISCO-BCOS/python-sdk.git
