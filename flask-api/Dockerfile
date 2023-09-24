@@ -21,9 +21,7 @@ COPY python-sdk/ /flower
 
 RUN bash init_env.sh -i && \
     cp /flower/nodes/127.0.0.1/sdk/* bin/ && \
-    ln -s /root/.local/bin/register-python-argcomplete /bin/register-python-argcomplete && \
-    echo "eval \"\$(register-python-argcomplete ./console.py)\"" >> ~/.bashrc && \
-    echo "eval \"/flower/nodes/127.0.0.1/start_all.sh\"" >> ~/.bashrc
+    ln -s /root/.local/bin/register-python-argcomplete /bin/register-python-argcomplete
 
 EXPOSE 20200 30300 8545
 ENTRYPOINT [ "python3","app.py" ]
