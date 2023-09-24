@@ -17,11 +17,12 @@ COPY requirements.txt /requirements.txt
 RUN pip install -r /requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple --no-cache-dir
 RUN curl -LO https://github.com/FISCO-BCOS/FISCO-BCOS/releases/download/"$(curl -s https://api.github.com/repos/FISCO-BCOS/FISCO-BCOS/releases | grep "\"v2\.[0-9]\.[0-9]\"" | sort -u | tail -n 1 | cut -d \" -f 4)"/build_chain.sh && chmod u+x build_chain.sh && \
     bash build_chain.sh -l "127.0.0.1:4" -p 30300,20200,8545
-COPY python-sdk/ /flower
+COPY python-sdk/ /flower/python-sdk
 
-RUN bash init_env.sh -i && \
-    cp /flower/nodes/127.0.0.1/sdk/* bin/ && \
+RUN bash python-sdk/init_env.sh -i && \
+    cp /flower/python-sdk/nodes/127.0.0.1/sdk/* bin/ && \
     ln -s /root/.local/bin/register-python-argcomplete /bin/register-python-argcomplete
+RUN python python-sdk/setup.py install && rm -rf python-sdk
 
 EXPOSE 20200 30300 8545
 ENTRYPOINT [ "python3","app.py" ]
