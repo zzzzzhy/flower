@@ -19,10 +19,13 @@ RUN curl -LO https://github.com/FISCO-BCOS/FISCO-BCOS/releases/download/"$(curl 
     bash build_chain.sh -l "127.0.0.1:4" -p 30300,20200,8545
 COPY python-sdk/ /flower/python-sdk
 
-RUN bash python-sdk/init_env.sh -i && \
+WORKDIR /flower/python-sdk
+RUN bash init_env.sh -i && \
     cp /flower/python-sdk/nodes/127.0.0.1/sdk/* bin/ && \
     ln -s /root/.local/bin/register-python-argcomplete /bin/register-python-argcomplete
-RUN python python-sdk/setup.py install && rm -rf python-sdk
+RUN python setup.py install 
+WORKDIR /flower
+RUN rm -rf python-sdk
 
 EXPOSE 20200 30300 8545
 ENTRYPOINT [ "python3","app.py" ]
