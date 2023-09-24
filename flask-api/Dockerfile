@@ -21,8 +21,8 @@ COPY python-sdk/ /python-sdk
 
 WORKDIR /python-sdk
 RUN bash init_env.sh -i && \
-    cp /python-sdk/nodes/127.0.0.1/sdk/* bin/ && \
-    ln -s /root/.local/bin/register-python-argcomplete /bin/register-python-argcomplete
+    ln -s /root/.local/bin/register-python-argcomplete /bin/register-python-argcomplete && \
+    mv /python-sdk/bin /flower/
 RUN python setup.py install 
 WORKDIR /flower
 RUN rm -rf /python-sdk
