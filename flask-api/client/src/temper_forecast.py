@@ -17,9 +17,7 @@ import requests
 from client_config import client_config
 from bcos3sdk.bcos3client import Bcos3Client
 from bcos3sdk.transaction_status import TransactionStatus
-from console_utils.console_common import print_receipt_logs_and_txoutput
 from client.common import common
-from client.common import transaction_common
 from client.datatype_parser import DatatypeParser
 from console_utils.cmd_account import CmdAccount
 from client.signer_impl import Signer_ECDSA
@@ -50,8 +48,7 @@ def upload_data(contractname, address , fn_name, fn_args):
         res = requests.post(client_config.node+'/register',data={'address':ac2.address})
         print("register:\t", res.text)
         
-    tx_client = Bcos3Client(default_from_account_signer=Signer_ECDSA.from_key_file(
-                key_file, client_config.account_password))
+    tx_client = Bcos3Client(default_from_account_signer = Signer_ECDSA.from_key_file(key_file, client_config.account_password))
     try:
         abiparser = DatatypeParser(f"{tx_client.config.contract_dir}/{contractname}.abi")
         (contract_abi,args) = abiparser.format_abi_args(fn_name,fn_args)
