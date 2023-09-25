@@ -46,6 +46,8 @@ def learn_start():
     except docker.errors.NotFound:
         container = client.containers.run('flower', volumes={
                                           curdir + '/bcos3sdklib/': {'bind': '/flower/bcos3sdklib', 'mode': 'rw'},
+                                          curdir + '/accounts/': {'bind': '/flower/accounts', 'mode': 'rw'},
+                                          curdir + '/contracts/': {'bind': '/flower/contracts', 'mode': 'rw'},
                                           curdir + '/app.py':{'bind': '/flower/app.py', 'mode': 'rw'},
                                           curdir + '/src':{'bind': '/flower/src', 'mode': 'rw'}}, command='-u &>$(date "+%s").log' if save_log else '', auto_remove=auto_remove, detach=True, name="flwr-server")
     except docker.errors.APIError as e:
@@ -69,7 +71,7 @@ def model_download():
 
 @scheduler.task('interval', id='getTask', seconds=30)
 def getTask():
-    res=requests.get("http://www.rubyroes.top/task")
+    res=requests.get("http://172.17.0.1:8080/task")
     res.json()
     print('查询是否开启训练',res.json())
     

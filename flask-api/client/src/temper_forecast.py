@@ -11,15 +11,41 @@ from sklearn.model_selection import train_test_split
 # pip install scikit-learn
 import matplotlib.pyplot as plt
 import torch.utils.data as Data
+import json
+import requests
 
 from client_config import client_config
 from console_utils.console_common import print_receipt_logs_and_txoutput
 from client.common import common
 from client.common import transaction_common
 from client.datatype_parser import DatatypeParser
+from console_utils.cmd_account import CmdAccount
+from client.signer_impl import Signer_ECDSA
+from eth_account.account import Account
+
 contracts_dir = "contracts"
+import uuid
+def get_mac_address():
+    """
+    获取本机物理地址，获取本机mac地址
+    :return:
+    """
+    mac=uuid.UUID(int = uuid.getnode()).hex[-12:].upper()
+    return "-".join([mac[e:e+2] for e in range(0,11,2)])
+
 # Cred 0xd24180cc0fef2f3e545de4f9aafc09345cd08903 "shareData" "1" "[[-34735, 0, 0, -38811, -24859, 0, 0, 0, -35400, -34118, -30825, 0, -34134, 0, 0, -31372, 0, 0, 0, 0, -38994, -40268, -36570, 0, 0, -36252, -36960, -29528, -36666, 0, 0, 0, -35739, 0, 0, -36435, 0, -32844, 0, 0, -37892, -34644, 0, -5214, 0, 0, 0, -40397, 0, 0, 0, 0, -25964, 0, 0, -34665, -34200, -41271, 0, 0, -30478, 0, 0, -42792, 0, -39536, -25307, 0, -37606, 0, -33774, 0, 0, -38091, 0, 0, -3950, 0, 0, 0, 0, 0, 0, 0, -36714, 0, 0, -32335, 0, -15880, 0, 0, 0, 0, 0, 0, -5972, -37087, 0, 0, -39449, 0, 24, 0, -23541, 0, 0, -37282, -31862, -35911, 0, 0, 0, -33218, 0, 0, 0, 0, 0, 0, -38225, 0, 0, -28504, 0, 0, 0, 0]]"
 def upload_data(contractname, address , fn_name, fn_args):
+    key_file = "{}/{}".format(client_config.account_keyfile_path, client_config.account_keyfile)
+    if not os.access(key_file, os.F_OK):
+        CmdAccount.create_ecdsa_account(get_mac_address(),'123456')
+        
+    with open(key_file, "r") as dump_f:
+        keytext = json.load(dump_f)
+        privkey = Account.decrypt(keytext, '123456')
+        ac2 = Account.from_key(privkey)
+        res = requests.post(client_config.node+'/register',data={'address':ac2.address})
+        print("register:\t", res.text)
+        
     tx_client = transaction_common.TransactionCommon(
         address, contracts_dir, contractname
     )
@@ -30,9 +56,9 @@ def upload_data(contractname, address , fn_name, fn_args):
     #     )
     # )
     try:
-        from_account_signer = None
-        # from_account_signer = Signer_ECDSA.from_key_file(
-        #    "bin/accounts/tester.keystore", "123456")
+        # from_account_signer = None
+        from_account_signer = Signer_ECDSA.from_key_file(
+           key_file, "123456")
         # print(keypair.address)
         # 不指定from账户，如需指定，参考上面的加载，或者创建一个新的account，
         # 参见国密（client.GM_Account）和非国密的account管理类LocalAccount
@@ -133,7 +159,7 @@ def load_data():
         dataset=test_data, batch_size=BATCH_SIZE, shuffle=False)
     return train_loader, val_loader, test_loader
 
-def train(model, device, train_loader, val_loader, epochs):
+def train(model, device, train_loader, val_loader, epochs,addr):
     time_start = time.time()
     # model = DNN()
     # print(model)  # net architecture
@@ -177,6 +203,10 @@ def train(model, device, train_loader, val_loader, epochs):
         if len(val_MSE) == 0 or val_MSE[-1] <= min(np.array(val_MSE)):
             for name, param in model.named_parameters():
                 if param.grad is not None and name == "layer5.weight":
+                    if addr:
+                        upload_data('Cred',addr,'shareData',param.grad.tolist())
+                    else:
+                        print('addr is None')
                     print(f"{name}: {param.grad}")
             # 如果比之前的mse要小，就保存模型
             # print("Best model on epoch: {}, val_mse: {:.4f}".format(epoch, val_MSE[-1]))

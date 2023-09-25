@@ -2,7 +2,14 @@
 # - * - coding: utf - 8 -
 import os
 from eth_utils.crypto import set_crypto_type, CRYPTO_TYPE_GM, CRYPTO_TYPE_ECDSA
-
+import uuid
+def get_mac_address():
+    """
+    获取本机物理地址，获取本机mac地址
+    :return:
+    """
+    mac=uuid.UUID(int = uuid.getnode()).hex[-12:].upper()
+    return "-".join([mac[e:e+2] for e in range(0,11,2)])
 
 class client_config:
     """
@@ -16,13 +23,13 @@ class client_config:
     # ssl_type = "GM"
     set_crypto_type(crypto_type)  # 使其全局生效
     # 默认日志输出目录，该目录不会自动建，必须先建立
-    logdir = "bin/logs"
+    logdir = "logs"
     # 合约相关路径
-    contract_dir = "./contracts"
-    contract_info_file = "bin/contract.ini"  # 保存已部署合约信息的文件
+    contract_dir = "/flower/contracts"
+    contract_info_file = "contract.ini"  # 保存已部署合约信息的文件
     # 账号文件相关路径
-    account_keyfile_path = "bin/accounts"  # 保存keystore文件的路径，在此路径下,keystore文件以 [name].keystore命名
-    account_keyfile = "pyaccount.keystore"
+    account_keyfile_path = "/flower/accounts"  # 保存keystore文件的路径，在此路径下,keystore文件以 [name].keystore命名
+    account_keyfile = get_mac_address()+".keystore"
     # account_keyfile = "pemtest.pem"
     account_password = "123456"  # 实际使用时建议改为复杂密码
     gm_account_keyfile = "gm_account.json"  # 国密账号的存储文件，可以加密存储,如果留空则不加载
@@ -30,18 +37,18 @@ class client_config:
     
     # ---------编译器 compiler related--------------
     # path of solc compiler
-    solc_path = "bin/solc/solc"
+    solc_path = "/flower/bin/solc/solc"
     # solc_path = "bin/solc/solc6.exe"
     solcjs_path = "./solcjs"
-    gm_solc_path = "bin/solc/solc-gm"
+    gm_solc_path = "/flower/bin/solc/solc-gm"
     # ---------console mode, support user input--------------
     background = True
 
     # ------------------FISCO BCOS3.0 Begin----------------------------------------
     # FISCO BCOS3.0的配置段，如连接FISCO BCOS2.0版本，无需关心此段
     # FISCO BCOS3.0 c底层sdk的配置，都在bcos3_config_file里，无需配置在此文件
-    bcos3_lib_path = "./bcos3sdklib"
-    bcos3_config_file = "./bcos3sdklib/bcos3_sdk_config.ini"
+    bcos3_lib_path = "/flower/bcos3sdklib"
+    bcos3_config_file = "/flower/bcos3sdklib/bcos3_sdk_config.ini"
     bcos3_group = "group0"
     bcos3_check_node_version = False #是否在初始化后验证一次node版本
     bcos3_when_version_mismatch = "WARN" # WARN 或 "ERROR" ,如果版本不匹配，WARN只是打个警告，ERROR就抛异常了，建议WARN
@@ -63,7 +70,8 @@ class client_config:
     channel_host = "127.0.0.1"  # 采用channel通信时，节点的channel ip地址,如采用rpc协议通信，这里可以留空
     channel_port = 20200  # 节点的channel 端口,如采用rpc协议通信，这里可以留空
     channel_ca = "bin/ca.crt"  # 采用channel协议时，需要设置链证书,如采用rpc协议通信，这里可以留空
-    channel_node_cert = "bin/sdk.crt"  # 采用channel协议时，需要设置sdk证书,如采用rpc协议通信，这里可以留空
-    channel_node_key = "bin/sdk.key"  # 采用channel协议时，需要设置sdk私钥,如采用rpc协议通信，这里可以留空
-    channel_en_crt = "bin/gmensdk.crt"  # 仅国密双证书使用，加密证书
-    channel_en_key = "bin/gmensdk.key"  # 仅国密双证书使用，加密keys
+    channel_node_cert = "/flower/bin/sdk.crt"  # 采用channel协议时，需要设置sdk证书,如采用rpc协议通信，这里可以留空
+    channel_node_key = "/flower/bin/sdk.key"  # 采用channel协议时，需要设置sdk私钥,如采用rpc协议通信，这里可以留空
+    channel_en_crt = "/flower/bin/gmensdk.crt"  # 仅国密双证书使用，加密证书
+    channel_en_key = "/flower/bin/gmensdk.key"  # 仅国密双证书使用，加密keys
+    node='http://43.229.28.89:5924'
