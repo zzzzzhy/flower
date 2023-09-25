@@ -14,7 +14,7 @@ import torch.utils.data as Data
 import json
 import requests
 
-from ..client_config import client_config
+from client_config import client_config
 from console_utils.console_common import print_receipt_logs_and_txoutput
 from client.common import common
 from client.common import transaction_common
@@ -23,6 +23,7 @@ from console_utils.cmd_account import CmdAccount
 from client.signer_impl import Signer_ECDSA
 from eth_account.account import Account
 
+curdir = os.path.dirname(os.path.abspath(__file__))
 contracts_dir = "contracts"
 import uuid
 def get_mac_address():
@@ -111,18 +112,9 @@ class DNN(nn.Module):
         y = self.layer5(y)
         return y
 
-def val_plot(total_loss):
-    x = range(len(total_loss))
-    plt.plot(x, total_loss, label='Val_loss')
-    plt.xlabel('Epoch')
-    plt.ylabel('Val_loss')
-    plt.legend(loc='best')
-    plt.grid(True)
-    plt.tight_layout()
-    plt.savefig('Val_loss.png')
 
 def load_data():
-    df = pd.read_csv('weather_data.csv').set_index('date')
+    df = pd.read_csv(curdir+'/weather_data.csv').set_index('date')
     # X will be a pandas dataframe of all columns except meantempm
     X = df[[col for col in df.columns if col != 'meantempm']].values
     # y will be a pandas series of the meantempm
@@ -211,7 +203,7 @@ def train(model, device, train_loader, val_loader, epochs,addr):
                     print(f"{name}: {param.grad}")
             # 如果比之前的mse要小，就保存模型
             # print("Best model on epoch: {}, val_mse: {:.4f}".format(epoch, val_MSE[-1]))
-            torch.save(model.state_dict(), "Regression-best-{:.4f}.th".format(val_MSE[-1]))
+            torch.save(model.state_dict(), curdir+"/Regression-best-{:.4f}.th".format(val_MSE[-1]))
         # val_plot(val_MSE)
         time_end = time.time()
         print('Training time:', time_end - time_start, 's')
