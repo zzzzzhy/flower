@@ -1,12 +1,12 @@
 import flwr as fl
 import requests
-
-def fit_config(server_round: int, address):
+credaddress = ''
+def fit_config(server_round: int):
     """Return training configuration dict for each round."""
     config = {
         "batch_size": 32,
         "current_round": server_round,
-        "address": address,
+        "address": credaddress,
     }
     return config
 
@@ -18,7 +18,7 @@ def main() -> None:
     strategy = fl.server.strategy.FedAvg(
         fraction_fit=0.5,
         fraction_evaluate=0.5,
-        on_fit_config_fn=fit_config(address=credaddress)
+        on_fit_config_fn=fit_config
     )
     # Start Flower server for three rounds of federated learning
     fl.server.start_server(
