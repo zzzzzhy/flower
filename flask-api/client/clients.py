@@ -5,6 +5,7 @@ import requests
 import os
 import docker
 from flask_apscheduler import APScheduler
+import time
 class Config(object):
     SCHEDULER_API_ENABLED = True
 scheduler = APScheduler()
@@ -51,7 +52,7 @@ def learn_start():
                                           curdir + '/contracts/': {'bind': '/flower/contracts', 'mode': 'rw'},
                                           curdir + '/app.py':{'bind': '/flower/app.py', 'mode': 'rw'},
                                           curdir + '/client_config.py':{'bind': '/flower/client_config.py', 'mode': 'rw'},
-                                          curdir + '/src':{'bind': '/flower/src', 'mode': 'rw'}}, command='-u &>/flower/src/$(date "+%s").log' if save_log else '', auto_remove=auto_remove, detach=True, name=docker_name)
+                                          curdir + '/src':{'bind': '/flower/src', 'mode': 'rw'}}, command=['-u','&>',f'/flower/src/{time.time()}.log'] if save_log else '', auto_remove=auto_remove, detach=True, name=docker_name)
     except docker.errors.APIError as e:
         return {"code": str(e), "msg": "APIError..."}
     return container.logs()

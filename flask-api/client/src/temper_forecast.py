@@ -15,6 +15,8 @@ import json
 import requests
 
 from client_config import client_config
+from bcos3sdk.bcos3client import Bcos3Client
+from bcos3sdk.transaction_status import TransactionStatus
 from console_utils.console_common import print_receipt_logs_and_txoutput
 from client.common import common
 from client.common import transaction_common
@@ -39,36 +41,38 @@ def get_mac_address():
 def upload_data(contractname, address , fn_name, fn_args):
     key_file = "{}/{}".format(client_config.account_keyfile_path, client_config.account_keyfile)
     if not os.access(key_file, os.F_OK):
-        CmdAccount.create_ecdsa_account(get_mac_address(),'123456')
+        CmdAccount.create_ecdsa_account(get_mac_address(),client_config.account_password)
         
     with open(key_file, "r") as dump_f:
         keytext = json.load(dump_f)
-        privkey = Account.decrypt(keytext, '123456')
+        privkey = Account.decrypt(keytext, client_config.account_password)
         ac2 = Account.from_key(privkey)
         res = requests.post(client_config.node+'/register',data={'address':ac2.address})
         print("register:\t", res.text)
         
-    tx_client = transaction_common.TransactionCommon(
-        address, contracts_dir, contractname
-    )
-    # print("INFO>> client info: {}".format(tx_client.getinfo()))
-    # print(
-    #     "INFO >> sendtx {} , address: {}, func: {}, args:{}".format(
-    #         contractname, address, fn_name, fn_args
-    #     )
-    # )
+    tx_client = Bcos3Client(default_from_account_signer=Signer_ECDSA.from_key_file(
+                key_file, client_config.account_password))
     try:
-        # from_account_signer = None
-        from_account_signer = Signer_ECDSA.from_key_file(
-           key_file, "123456")
-        # print(keypair.address)
-        # 不指定from账户，如需指定，参考上面的加载，或者创建一个新的account，
-        # 参见国密（client.GM_Account）和非国密的account管理类LocalAccount
-        (receipt, output) = tx_client.send_transaction_getReceipt(
-            fn_name, fn_args, from_account_signer=from_account_signer)
-        data_parser = DatatypeParser(tx_client.contract_abi_path)
+        abiparser = DatatypeParser(f"{tx_client.config.contract_dir}/{contractname}.abi")
+        (contract_abi,args) = abiparser.format_abi_args(fn_name,fn_args)
+        # print("sendtx:",args)
+        result = tx_client.sendRawTransaction(address, abiparser.contract_abi, fn_name, args)
         # 解析receipt里的log 和 相关的tx ,output
-        print_receipt_logs_and_txoutput(tx_client, receipt, "", data_parser)
+        # print(f"Transaction result >> \n{result}")
+        status =result['status']
+        # print(f"Transaction Status >> {status}")
+        if not TransactionStatus.isOK(status):
+            print("! transaction ERROR",TransactionStatus.get_error_message(status))
+        output = result['output']
+        output = abiparser.parse_output(fn_name, output)
+        # print(f"Transaction Output >> {output}")
+        # if "logEntries" in result:
+        #     logs = abiparser.parse_event_logs(result["logEntries"])
+        #     print("transaction receipt events >>")
+        #     n = 1
+        #     for log in logs:
+        #         print(f"{n} ):{log['eventname']} -> {log['eventdata']}")
+        #         n = n + 1
     except Exception as e:
         common.print_error_msg("sendtx", e)
         
