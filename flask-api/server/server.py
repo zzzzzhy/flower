@@ -71,7 +71,7 @@ def client_task():
         return json.dumps({"code": e, "msg": "NotFound"})
     except docker.errors.APIError as e:
         return json.dumps({"code": e, "msg": "APIError..."})
-    return {"code": 220, "msg": "no task"}
+    return json.dumps({"code": 220, "msg": "no task"})
 
 if __name__ == "__main__":
     app.run(port=8878)

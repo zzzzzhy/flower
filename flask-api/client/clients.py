@@ -73,7 +73,7 @@ def model_download():
 @scheduler.task('interval', id='getTask', seconds=30)
 def getTask():
     res=requests.get("http://localhost:8878/task")
-    if res.get_json() and res.get_json().get('code') == 200:
+    if res.json() and res.json().get('code') == 200:
         requests.post("http://localhost:8877/learn_start")
     print('查询是否开启训练',res.json())
     
