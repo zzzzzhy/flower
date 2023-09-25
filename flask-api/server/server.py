@@ -30,6 +30,8 @@ def learn_status():
 
 @app.route("/start", methods=['POST', 'GET'])
 def learn_start():
+    auto_remove=True
+    save_log=False
     if request.method == 'POST':
         args = request.get_json()
         auto_remove = args.get("rm", True)
