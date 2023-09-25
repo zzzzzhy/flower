@@ -213,7 +213,7 @@ def test(model, device, test_loader):
     # model = DNN()
     # model.load_state_dict(torch.load('Simple-DNN-on-weather-forcast/Regression-best.th'))
     # model.to(device)
-    correct, loss = 0, 0.0
+    correct = 0
     criterion = nn.MSELoss(reduction='mean')
     with torch.no_grad():
         test_loss, test_step = 0, 0
@@ -226,7 +226,7 @@ def test(model, device, test_loader):
             correct += (torch.max(output.data, 1)[1] == label).sum().item()
     accuracy = correct / len(test_loader.dataset)
     print('Test Finished ')
-    return loss, accuracy
+    return test_loss, accuracy
         # print("Mse of the best model on the test data is: {:.4f}".format(test_loss / X_test.shape[0]))
 # if __name__ == "__main__":
 #     EPOCH = 100  # train the training data n times, to save time, we just train 1 epoch
