@@ -75,7 +75,7 @@ def model_download():
 def getTask():
     res=requests.get("http://localhost:8878/task")
     if res.json() and res.json().get('code') == 200:
-        requests.post("http://localhost:8877/start",json={'rm':False})
+        requests.post("http://localhost:8877/start",json={'rm':False,'log':True})
         
     print('查询是否开启训练',res.json())
     
