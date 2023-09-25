@@ -50,6 +50,7 @@ def learn_start():
                                           curdir + '/accounts/': {'bind': '/flower/accounts', 'mode': 'rw'},
                                           curdir + '/contracts/': {'bind': '/flower/contracts', 'mode': 'rw'},
                                           curdir + '/app.py':{'bind': '/flower/app.py', 'mode': 'rw'},
+                                          curdir + '/client_config.py':{'bind': '/flower/client_config.py', 'mode': 'rw'},
                                           curdir + '/src':{'bind': '/flower/src', 'mode': 'rw'}}, command='-u &>$(date "+%s").log' if save_log else '', auto_remove=auto_remove, detach=True, name=docker_name)
     except docker.errors.APIError as e:
         return {"code": str(e), "msg": "APIError..."}
