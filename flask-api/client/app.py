@@ -50,7 +50,7 @@ class FlowerClient(fl.client.NumPyClient):
 if __name__ == "__main__":
     # Start Flower client
     fl.client.start_numpy_client(
-        server_address="flower-server.svc:8080",
+        server_address="flwr-server:8080",
         client=FlowerClient(),
     )
     # print('Starting')
