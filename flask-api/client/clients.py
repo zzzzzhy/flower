@@ -18,6 +18,7 @@ curdir = os.path.dirname(os.path.abspath(__file__))
 #     client_cert=(curdir + '/cert.pem', curdir + '/key.pem')
 # )
 # client = docker.DockerClient(base_url='tcp://139.159.254.236:2332', tls=tls_config)
+docker_name="flwr-client"
 ########### 测试用################
 
 app = Flask(__name__)
@@ -25,7 +26,7 @@ app = Flask(__name__)
 @app.route("/status", methods=['GET'])
 def learn_status():
     try:
-        container = client.containers.get("flwr-client")
+        container = client.containers.get(docker_name)
         return {"code": 201, "msg": container.logs(tail=100).decode('utf-8')}
     except docker.errors.NotFound as e:
         return {"code": e, "msg": "NotFound"}
@@ -38,7 +39,7 @@ def learn_start():
     auto_remove = args.get("rm", True)
     save_log = args.get("log", False)
     try:
-        container = client.containers.get("flwr-client")
+        container = client.containers.get(docker_name)
         if container.status == 'exited':
             container.remove()
             raise docker.errors.NotFound('exited')
@@ -57,7 +58,7 @@ def learn_start():
 @app.route("/stop", methods=['POST'])
 def learn_stop():
     try:
-        container = client.containers.get("flwr-client")
+        container = client.containers.get(docker_name)
         container.stop()
         return {"code": 200, "msg": "success stop"}
     except docker.errors.NotFound as e:
@@ -72,7 +73,8 @@ def model_download():
 @scheduler.task('interval', id='getTask', seconds=30)
 def getTask():
     res=requests.get("http://localhost:8878/task")
-    res.json()
+    if res.get_json() and res.get_json().get('code') == 200:
+        requests.post("http://localhost:8877/learn_start")
     print('查询是否开启训练',res.json())
     
 if __name__ == '__main__':

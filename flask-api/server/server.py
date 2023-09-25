@@ -66,11 +66,11 @@ def client_task():
     try:
         container=client.containers.get("flwr-server")
         if container.status == 'running':
-            return {"code": 200, "msg": "has task"}
+            return json.dumps({"code": 200, "msg": "has task"})
     except docker.errors.NotFound as e:
-        return {"code": e, "msg": "NotFound"}
+        return json.dumps({"code": e, "msg": "NotFound"})
     except docker.errors.APIError as e:
-        return {"code": e, "msg": "APIError..."}
+        return json.dumps({"code": e, "msg": "APIError..."})
     return {"code": 220, "msg": "no task"}
 
 if __name__ == "__main__":
