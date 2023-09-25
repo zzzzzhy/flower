@@ -44,7 +44,7 @@ def learn_start():
             raise docker.errors.NotFound('exited')
         return {"code": 201, "msg": "Starting...","logs": container.logs(tail=100).decode('utf-8')}
     except docker.errors.NotFound:
-        container = client.containers.run('flower', volumes={
+        container = client.containers.run('flower',netwok='svc', volumes={
                                           curdir + '/bcos3sdklib/': {'bind': '/flower/bcos3sdklib', 'mode': 'rw'},
                                           curdir + '/accounts/': {'bind': '/flower/accounts', 'mode': 'rw'},
                                           curdir + '/contracts/': {'bind': '/flower/contracts', 'mode': 'rw'},
@@ -71,7 +71,7 @@ def model_download():
 
 @scheduler.task('interval', id='getTask', seconds=30)
 def getTask():
-    res=requests.get("http://172.17.0.1:8080/task")
+    res=requests.get("http://localhost:8878/task")
     res.json()
     print('查询是否开启训练',res.json())
     
