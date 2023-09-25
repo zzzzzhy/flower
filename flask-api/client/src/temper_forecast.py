@@ -200,7 +200,7 @@ def train(model, device, train_loader, val_loader, epochs,addr):
                     if addr:
                         grad=np.trunc(param.grad * 10000)
                         # print(f"{name}: {grad.numpy().astype(dtype=int).tolist()}")
-                        upload_data('Cred',addr,'shareData',grad.numpy().astype(dtype=int).tolist())
+                        upload_data('Cred',addr,'shareData',str(grad.numpy().astype(dtype=int).tolist()))
                     else:
                         print('addr is None')
                     print(f"{name}: {param.grad}")
