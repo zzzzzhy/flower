@@ -24,9 +24,9 @@ def learn_status():
         container = client.containers.get("flwr-server")
         return {"code": 201, "msg": container.logs(tail=100).decode('utf-8')}
     except docker.errors.NotFound as e:
-        return {"code": e, "msg": "NotFound"}
+        return {"code": str(e), "msg": "NotFound"}
     except docker.errors.APIError as e:
-        return {"code": e, "msg": "APIError..."}
+        return {"code": str(e), "msg": "APIError..."}
 
 @app.route("/start", methods=['POST', 'GET'])
 def learn_start():
@@ -43,7 +43,7 @@ def learn_start():
         container = client.containers.run('flower',netwok='svc', volumes={
                                           curdir + '/': {'bind': '/flower', 'mode': 'rw'}}, command='-u &>$(date "+%s").log' if save_log else '', auto_remove=auto_remove, detach=True, name="flwr-server")
     except docker.errors.APIError as e:
-        return {"code": e, "msg": "APIError..."}
+        return {"code": str(e), "msg": "APIError..."}
     return container.logs()
 
 @app.route("/stop", methods=['POST'])
@@ -53,9 +53,9 @@ def learn_stop():
         container.stop()
         return {"code": 200, "msg": "success stop"}
     except docker.errors.NotFound as e:
-        return {"code": e, "msg": "NotFound"}
+        return {"code": str(e), "msg": "NotFound"}
     except docker.errors.APIError as e:
-        return {"code": e, "msg": "APIError..."}
+        return {"code": str(e), "msg": "APIError..."}
 
 @app.route("/download", methods=['POST'])
 def model_download():
@@ -68,9 +68,9 @@ def client_task():
         if container.status == 'running':
             return json.dumps({"code": 200, "msg": "has task"})
     except docker.errors.NotFound as e:
-        return json.dumps({"code": e, "msg": "NotFound"})
+        return json.dumps({"code": str(e), "msg": "NotFound"})
     except docker.errors.APIError as e:
-        return json.dumps({"code": e, "msg": "APIError..."})
+        return json.dumps({"code": str(e), "msg": "APIError..."})
     return json.dumps({"code": 220, "msg": "no task"})
 
 if __name__ == "__main__":
