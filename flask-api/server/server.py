@@ -30,9 +30,10 @@ def learn_status():
 
 @app.route("/start", methods=['POST', 'GET'])
 def learn_start():
-    args = request.get_json()
-    auto_remove = args.get("rm", True)
-    save_log = args.get("log", False)
+    if request.method == 'POST':
+        args = request.get_json()
+        auto_remove = args.get("rm", True)
+        save_log = args.get("log", False)
     try:
         container = client.containers.get("flwr-server")
         if container.status == 'exited':
