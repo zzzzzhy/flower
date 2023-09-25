@@ -198,7 +198,9 @@ def train(model, device, train_loader, val_loader, epochs,addr):
             for name, param in model.named_parameters():
                 if param.grad is not None and name == "layer5.weight":
                     if addr:
-                        upload_data('Cred',addr,'shareData',param.grad.tolist())
+                        grad=np.trunc(param.grad * 10000)
+                        # print(f"{name}: {grad.numpy().astype(dtype=int).tolist()}")
+                        upload_data('Cred',addr,'shareData',grad.numpy().astype(dtype=int).tolist())
                     else:
                         print('addr is None')
                     print(f"{name}: {param.grad}")

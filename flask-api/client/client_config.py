@@ -74,4 +74,4 @@ class client_config:
     channel_node_key = "/flower/bin/sdk.key"  # 采用channel协议时，需要设置sdk私钥,如采用rpc协议通信，这里可以留空
     channel_en_crt = "/flower/bin/gmensdk.crt"  # 仅国密双证书使用，加密证书
     channel_en_key = "/flower/bin/gmensdk.key"  # 仅国密双证书使用，加密keys
-    node='http://43.229.28.89:5924'
+    node = "http://43.229.28.89:5924"
