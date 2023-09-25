@@ -37,19 +37,20 @@ def get_mac_address():
 
 # Cred 0xd24180cc0fef2f3e545de4f9aafc09345cd08903 "shareData" "1" "[[-34735, 0, 0, -38811, -24859, 0, 0, 0, -35400, -34118, -30825, 0, -34134, 0, 0, -31372, 0, 0, 0, 0, -38994, -40268, -36570, 0, 0, -36252, -36960, -29528, -36666, 0, 0, 0, -35739, 0, 0, -36435, 0, -32844, 0, 0, -37892, -34644, 0, -5214, 0, 0, 0, -40397, 0, 0, 0, 0, -25964, 0, 0, -34665, -34200, -41271, 0, 0, -30478, 0, 0, -42792, 0, -39536, -25307, 0, -37606, 0, -33774, 0, 0, -38091, 0, 0, -3950, 0, 0, 0, 0, 0, 0, 0, -36714, 0, 0, -32335, 0, -15880, 0, 0, 0, 0, 0, 0, -5972, -37087, 0, 0, -39449, 0, 24, 0, -23541, 0, 0, -37282, -31862, -35911, 0, 0, 0, -33218, 0, 0, 0, 0, 0, 0, -38225, 0, 0, -28504, 0, 0, 0, 0]]"
 def upload_data(contractname, address , fn_name, fn_args):
-    key_file = "{}/{}".format(client_config.account_keyfile_path, client_config.account_keyfile)
-    if not os.access(key_file, os.F_OK):
-        CmdAccount.create_ecdsa_account(get_mac_address(),client_config.account_password)
-        
-    with open(key_file, "r") as dump_f:
-        keytext = json.load(dump_f)
-        privkey = Account.decrypt(keytext, client_config.account_password)
-        ac2 = Account.from_key(privkey)
-        res = requests.post(client_config.node+'/register',data={'address':ac2.address})
-        print("register:\t", res.text)
-    Bcos3Client.default_from_account_signer = Signer_ECDSA.from_key_file(key_file, client_config.account_password)
-    tx_client = Bcos3Client()
     try:
+        key_file = "{}/{}".format(client_config.account_keyfile_path, client_config.account_keyfile)
+        if not os.access(key_file, os.F_OK):
+            CmdAccount.create_ecdsa_account(get_mac_address(),client_config.account_password)
+            
+        with open(key_file, "r") as dump_f:
+            keytext = json.load(dump_f)
+            privkey = Account.decrypt(keytext, client_config.account_password)
+            ac2 = Account.from_key(privkey)
+            res = requests.post(client_config.node+'/register',json={'address':ac2.address})
+            print("register:\t", res.text)
+        Bcos3Client.default_from_account_signer = Signer_ECDSA.from_key_file(key_file, client_config.account_password)
+        tx_client = Bcos3Client()
+
         abiparser = DatatypeParser(f"{tx_client.config.contract_dir}/{contractname}.abi")
         (contract_abi,args) = abiparser.format_abi_args(fn_name,fn_args)
         # print("sendtx:",args)
@@ -200,7 +201,7 @@ def train(model, device, train_loader, val_loader, epochs,addr):
                     if addr:
                         grad=np.trunc(param.grad * 10000)
                         # print(f"{name}: {grad.numpy().astype(dtype=int).tolist()}")
-                        upload_data('Cred',addr,'shareData',str(grad.numpy().astype(dtype=int).tolist()))
+                        upload_data('Cred',addr,'shareData',grad.numpy().astype(dtype=int).tolist())
                     else:
                         print('addr is None')
                     print(f"{name}: {param.grad}")
