@@ -45,7 +45,7 @@ def learn_start():
             raise docker.errors.NotFound('exited')
         return {"code": 201, "msg": "Starting...","logs": container.logs(tail=100).decode('utf-8')}
     except docker.errors.NotFound:
-        container = client.containers.run('flower',netwok='svc', volumes={
+        container = client.containers.run('flower',network='svc', volumes={
                                           curdir + '/bcos3sdklib/': {'bind': '/flower/bcos3sdklib', 'mode': 'rw'},
                                           curdir + '/accounts/': {'bind': '/flower/accounts', 'mode': 'rw'},
                                           curdir + '/contracts/': {'bind': '/flower/contracts', 'mode': 'rw'},
