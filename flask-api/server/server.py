@@ -41,7 +41,7 @@ def learn_start():
         return {"code": 201, "msg": "Starting...", "logs": container.logs(tail=100).decode('utf-8')}
     except docker.errors.NotFound:
         container = client.containers.run('flower', volumes={
-                                          curdir + '/lbxx/': {'bind': '/flower', 'mode': 'rw'}}, command='-u &>$(date "+%s").log' if save_log else '', auto_remove=auto_remove, detach=True, name="flwr-server")
+                                          curdir + '/': {'bind': '/flower', 'mode': 'rw'}}, command='-u &>$(date "+%s").log' if save_log else '', auto_remove=auto_remove, detach=True, name="flwr-server")
     except docker.errors.APIError as e:
         return {"code": e, "msg": "APIError..."}
     return container.logs()

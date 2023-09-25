@@ -183,3 +183,4 @@ app/src/main/assets
 .externalNativeBuild
 .cxx
 *.pem
+!flask-api/client/bcos3sdklib/libbcos-c-sdk.so

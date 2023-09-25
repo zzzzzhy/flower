@@ -6,11 +6,12 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision.transforms import Compose, Normalize, ToTensor
-from temper_forecast import train, load_data, test, DNN
+from src.temper_forecast import train, load_data, test, DNN
 
 # #############################################################################
 # 1. Regular PyTorch pipeline: nn.Module, train, test, and DataLoader
 # #############################################################################
+
 
 warnings.filterwarnings("ignore", category=UserWarning)
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -45,9 +46,11 @@ class FlowerClient(fl.client.NumPyClient):
         loss, accuracy = test(net, DEVICE, test_loader)
         return loss, len(test_loader.dataset), {"accuracy": accuracy}
 
+
 if __name__ == "__main__":
     # Start Flower client
     fl.client.start_numpy_client(
         server_address="flower-server.svc:8080",
         client=FlowerClient(),
     )
+    # print('Starting')
