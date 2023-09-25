@@ -12,7 +12,7 @@ def fit_config(server_round: int, address):
 
 def main() -> None:
     # Define strategy
-    res = requests.get('http://localhost:5924/contract-address')
+    res = requests.get('http://172.17.0.1:5924/contract-address')
     if res.get_json() and res.get_json().get('code') == 0:
         credaddress = res.get_json().get('data')
     strategy = fl.server.strategy.FedAvg(
