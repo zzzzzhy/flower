@@ -12,6 +12,7 @@ def fit_config(server_round: int):
 
 def main() -> None:
     # Define strategy
+    global credaddress
     res = requests.get('http://172.17.0.1:5924/contract-address')
     if res.json() and res.json().get('code') == 0:
         credaddress = res.json().get('data')
