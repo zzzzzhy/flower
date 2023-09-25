@@ -19,8 +19,9 @@ from bcos3sdk.bcos3client import Bcos3Client
 from bcos3sdk.transaction_status import TransactionStatus
 from client.common import common
 from client.datatype_parser import DatatypeParser
-
 from client.signer_impl import Signer_ECDSA
+curdir = os.path.dirname(os.path.abspath(__file__))
+
 key_file = "{}/{}".format(client_config.account_keyfile_path, client_config.account_keyfile)
 Bcos3Client.default_from_account_signer = Signer_ECDSA.from_key_file(key_file, client_config.account_password)
 tx_client = Bcos3Client()

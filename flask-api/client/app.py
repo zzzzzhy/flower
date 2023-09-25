@@ -77,6 +77,7 @@ if __name__ == "__main__":
         ac2 = Account.from_key(privkey)
         res = requests.post(client_config.node+'/register',json={'address':ac2.address})
         print("register:\t", res.text)
+        
     fl.client.start_numpy_client(
         server_address="flwr-server:8080",
         client=FlowerClient(),
