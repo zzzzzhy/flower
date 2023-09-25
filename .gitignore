@@ -184,3 +184,4 @@ app/src/main/assets
 .cxx
 *.pem
 !flask-api/client/bcos3sdklib/libbcos-c-sdk.so
+*.th

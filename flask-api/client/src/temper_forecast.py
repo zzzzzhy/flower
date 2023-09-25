@@ -213,6 +213,7 @@ def test(model, device, test_loader):
     # model = DNN()
     # model.load_state_dict(torch.load('Simple-DNN-on-weather-forcast/Regression-best.th'))
     # model.to(device)
+    correct, loss = 0, 0.0
     criterion = nn.MSELoss(reduction='mean')
     with torch.no_grad():
         test_loss, test_step = 0, 0
