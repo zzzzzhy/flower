@@ -47,10 +47,9 @@ def upload_data(contractname, address , fn_name, fn_args):
         ac2 = Account.from_key(privkey)
         res = requests.post(client_config.node+'/register',data={'address':ac2.address})
         print("register:\t", res.text)
-        
+    Bcos3Client.default_from_account_signer = Signer_ECDSA.from_key_file(key_file, client_config.account_password)
     tx_client = Bcos3Client()
     try:
-        tx_client.default_from_account_signer = Signer_ECDSA.from_key_file(key_file, client_config.account_password)
         abiparser = DatatypeParser(f"{tx_client.config.contract_dir}/{contractname}.abi")
         (contract_abi,args) = abiparser.format_abi_args(fn_name,fn_args)
         # print("sendtx:",args)
