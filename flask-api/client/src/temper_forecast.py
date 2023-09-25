@@ -14,7 +14,7 @@ import torch.utils.data as Data
 import json
 import requests
 
-from client_config import client_config
+from ..client_config import client_config
 from console_utils.console_common import print_receipt_logs_and_txoutput
 from client.common import common
 from client.common import transaction_common
