@@ -50,7 +50,7 @@ def learn_start():
                                           curdir + '/accounts/': {'bind': '/flower/accounts', 'mode': 'rw'},
                                           curdir + '/contracts/': {'bind': '/flower/contracts', 'mode': 'rw'},
                                           curdir + '/app.py':{'bind': '/flower/app.py', 'mode': 'rw'},
-                                          curdir + '/src':{'bind': '/flower/src', 'mode': 'rw'}}, command='-u &>$(date "+%s").log' if save_log else '', auto_remove=auto_remove, detach=True, name="flwr-server")
+                                          curdir + '/src':{'bind': '/flower/src', 'mode': 'rw'}}, command='-u &>$(date "+%s").log' if save_log else '', auto_remove=auto_remove, detach=True, name=docker_name)
     except docker.errors.APIError as e:
         return {"code": str(e), "msg": "APIError..."}
     return container.logs()
@@ -74,11 +74,12 @@ def model_download():
 def getTask():
     res=requests.get("http://localhost:8878/task")
     if res.json() and res.json().get('code') == 200:
-        requests.post("http://localhost:8877/learn_start")
+        requests.post("http://localhost:8877/start")
+        
     print('查询是否开启训练',res.json())
     
 if __name__ == '__main__':
-    app = Flask(__name__)
+    # app = Flask(__name__)
     app.config.from_object(Config())
     scheduler.init_app(app)
     scheduler.start()
