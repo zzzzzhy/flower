@@ -77,4 +77,4 @@ def client_task():
     return json.dumps({"code": 220, "msg": "no task"})
 
 if __name__ == "__main__":
-    app.run(port=8878)
+    app.run(host='0.0.0.0',port=8878)
