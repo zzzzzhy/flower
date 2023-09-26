@@ -69,7 +69,7 @@ if __name__ == "__main__":
     # Start Flower client
     key_file = "{}/{}".format(client_config.account_keyfile_path, client_config.account_keyfile)
     if not os.access(key_file, os.F_OK):
-        CmdAccount.create_ecdsa_account(get_mac_address(),client_config.account_password)
+        CmdAccount.create_ecdsa_account(client_config,get_mac_address(),client_config.account_password)
         
     with open(key_file, "r") as dump_f:
         keytext = json.load(dump_f)

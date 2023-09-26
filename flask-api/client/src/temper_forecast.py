@@ -38,18 +38,18 @@ def upload_data(contractname, address , fn_name, fn_args):
             f"{tx_client.config.contract_dir}/{contractname}.abi")
         # (contract_abi,args) = abiparser.format_abi_args(fn_name,fn_args)
         args = fn_args
-        # print("sendtx:",args)
+        print("sendtx:",args)
         result = tx_client.sendRawTransaction(
             address, abiparser.contract_abi, fn_name, args)
         # 解析receipt里的log 和 相关的tx ,output
-        # print(f"Transaction result >> \n{result}")
+        print(f"Transaction result >> \n{result}")
         status = result['status']
-        # print(f"Transaction Status >> {status}")
+        print(f"Transaction Status >> {status}")
         if not TransactionStatus.isOK(status):
             print("! transaction ERROR", TransactionStatus.get_error_message(status))
         output = result['output']
         output = abiparser.parse_output(fn_name, output)
-        # print(f"Transaction Output >> {output}")
+        print(f"Transaction Output >> {output}")
         # if "logEntries" in result:
         #     logs = abiparser.parse_event_logs(result["logEntries"])
         #     print("transaction receipt events >>")
