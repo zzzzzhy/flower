@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision.transforms import Compose, Normalize, ToTensor
-from src.temper_forecast import train, load_data, test, DNN
+from src.temper_forecast import train, load_data, test, DNN,init
 import requests
 
 from eth_account.account import Account
@@ -77,7 +77,7 @@ if __name__ == "__main__":
         ac2 = Account.from_key(privkey)
         res = requests.post(client_config.node+'/register',json={'address':ac2.address})
         print("register:\t", res.text)
-        
+    init()
     fl.client.start_numpy_client(
         server_address="flwr-server:8080",
         client=FlowerClient(),

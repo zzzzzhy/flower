@@ -22,23 +22,31 @@ from client.datatype_parser import DatatypeParser
 from client.signer_impl import Signer_ECDSA
 curdir = os.path.dirname(os.path.abspath(__file__))
 
-key_file = "{}/{}".format(client_config.account_keyfile_path, client_config.account_keyfile)
-Bcos3Client.default_from_account_signer = Signer_ECDSA.from_key_file(key_file, client_config.account_password)
-tx_client = Bcos3Client()
+tx_client = None
+def init():
+    global tx_client
+    key_file = "{}/{}".format(client_config.account_keyfile_path,
+                              client_config.account_keyfile)
+    Bcos3Client.default_from_account_signer = Signer_ECDSA.from_key_file(
+        key_file, client_config.account_password)
+    tx_client = Bcos3Client()
 
 # Cred 0xd24180cc0fef2f3e545de4f9aafc09345cd08903 "shareData" "1" "[[-34735, 0, 0, -38811, -24859, 0, 0, 0, -35400, -34118, -30825, 0, -34134, 0, 0, -31372, 0, 0, 0, 0, -38994, -40268, -36570, 0, 0, -36252, -36960, -29528, -36666, 0, 0, 0, -35739, 0, 0, -36435, 0, -32844, 0, 0, -37892, -34644, 0, -5214, 0, 0, 0, -40397, 0, 0, 0, 0, -25964, 0, 0, -34665, -34200, -41271, 0, 0, -30478, 0, 0, -42792, 0, -39536, -25307, 0, -37606, 0, -33774, 0, 0, -38091, 0, 0, -3950, 0, 0, 0, 0, 0, 0, 0, -36714, 0, 0, -32335, 0, -15880, 0, 0, 0, 0, 0, 0, -5972, -37087, 0, 0, -39449, 0, 24, 0, -23541, 0, 0, -37282, -31862, -35911, 0, 0, 0, -33218, 0, 0, 0, 0, 0, 0, -38225, 0, 0, -28504, 0, 0, 0, 0]]"
 def upload_data(contractname, address , fn_name, fn_args):
     try:
-        abiparser = DatatypeParser(f"{tx_client.config.contract_dir}/{contractname}.abi")
-        (contract_abi,args) = abiparser.format_abi_args(fn_name,fn_args)
+        abiparser = DatatypeParser(
+            f"{tx_client.config.contract_dir}/{contractname}.abi")
+        # (contract_abi,args) = abiparser.format_abi_args(fn_name,fn_args)
+        args = fn_args
         # print("sendtx:",args)
-        result = tx_client.sendRawTransaction(address, abiparser.contract_abi, fn_name, args)
+        result = tx_client.sendRawTransaction(
+            address, abiparser.contract_abi, fn_name, args)
         # 解析receipt里的log 和 相关的tx ,output
         # print(f"Transaction result >> \n{result}")
-        status =result['status']
+        status = result['status']
         # print(f"Transaction Status >> {status}")
         if not TransactionStatus.isOK(status):
-            print("! transaction ERROR",TransactionStatus.get_error_message(status))
+            print("! transaction ERROR", TransactionStatus.get_error_message(status))
         output = result['output']
         output = abiparser.parse_output(fn_name, output)
         # print(f"Transaction Output >> {output}")
@@ -51,7 +59,8 @@ def upload_data(contractname, address , fn_name, fn_args):
         #         n = n + 1
     except Exception as e:
         common.print_error_msg("sendtx", e)
-        
+
+
 EPOCH = 100  # train the training data n times, to save time, we just train 1 epoch
 LR = 0.001  # learning rate
 BATCH_SIZE = 10
@@ -94,7 +103,7 @@ class DNN(nn.Module):
 
 
 def load_data():
-    df = pd.read_csv(curdir+'/weather_data.csv').set_index('date')
+    df = pd.read_csv(curdir + '/weather_data.csv').set_index('date')
     # X will be a pandas dataframe of all columns except meantempm
     X = df[[col for col in df.columns if col != 'meantempm']].values
     # y will be a pandas series of the meantempm
@@ -132,7 +141,7 @@ def load_data():
         dataset=test_data, batch_size=BATCH_SIZE, shuffle=False)
     return train_loader, val_loader, test_loader
 
-def train(model, device, train_loader, val_loader, epochs,addr):
+def train(model, device, train_loader, val_loader, epochs, addr):
     time_start = time.time()
     # model = DNN()
     # print(model)  # net architecture
@@ -177,15 +186,17 @@ def train(model, device, train_loader, val_loader, epochs,addr):
             for name, param in model.named_parameters():
                 if param.grad is not None and name == "layer5.weight":
                     if addr:
-                        grad=np.trunc(param.grad * 10000)
+                        grad = np.trunc(param.grad * 10000)
                         # print(f"{name}: {grad.numpy().astype(dtype=int).tolist()}")
-                        upload_data('Cred',addr,'shareData',grad.numpy().astype(dtype=int).tolist()[0])
+                        upload_data('Cred', addr, 'shareData', [
+                                    1, grad.numpy().astype(dtype=int).tolist()])
                     else:
                         print('addr is None')
                     print(f"{name}: {param.grad}")
             # 如果比之前的mse要小，就保存模型
             # print("Best model on epoch: {}, val_mse: {:.4f}".format(epoch, val_MSE[-1]))
-            torch.save(model.state_dict(), curdir+"/Regression-best-{:.4f}.th".format(val_MSE[-1]))
+            torch.save(model.state_dict(), curdir
+                       + "/Regression-best-{:.4f}.th".format(val_MSE[-1]))
         # val_plot(val_MSE)
         time_end = time.time()
         print('Training time:', time_end - time_start, 's')
@@ -209,7 +220,7 @@ def test(model, device, test_loader):
     accuracy = correct / len(test_loader.dataset)
     print('Test Finished ')
     return test_loss, accuracy
-        # print("Mse of the best model on the test data is: {:.4f}".format(test_loss / X_test.shape[0]))
+    # print("Mse of the best model on the test data is: {:.4f}".format(test_loss / X_test.shape[0]))
 # if __name__ == "__main__":
 #     EPOCH = 100  # train the training data n times, to save time, we just train 1 epoch
 #     LR = 0.001  # learning rate
