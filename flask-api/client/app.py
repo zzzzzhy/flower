@@ -56,7 +56,8 @@ class FlowerClient(fl.client.NumPyClient):
 
     def fit(self, parameters, config):
         self.set_parameters(parameters)
-        train(net, DEVICE, train_loader, val_loader, epochs=100,addr=config.get('address',None))
+        print("batchId-------->>",config.get('batchId',None))
+        train(net, DEVICE, train_loader, val_loader, epochs=100,addr=config.get('address',None),batchId=config.get('batchId',None))
         return self.get_parameters(config={}), len(train_loader.dataset), {}
 
     def evaluate(self, parameters, config):
@@ -79,7 +80,7 @@ if __name__ == "__main__":
         print("register:\t", res.text)
     init()
     fl.client.start_numpy_client(
-        server_address="flwr-server:8080",
+        server_address="172.21.85.4:8080",
         client=FlowerClient(),
     )
     # print('Starting')

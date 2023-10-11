@@ -46,7 +46,7 @@ def learn_start():
             raise docker.errors.NotFound('exited')
         return {"code": 201, "msg": "Starting...","logs": container.logs(tail=100).decode('utf-8')}
     except docker.errors.NotFound:
-        container = client.containers.run('rubyroes/flower',network='svc', volumes={
+        container = client.containers.run('rubyroes/flower', volumes={
                                           curdir + '/bcos3sdklib/': {'bind': '/flower/bcos3sdklib', 'mode': 'rw'},
                                           curdir + '/accounts/': {'bind': '/flower/accounts', 'mode': 'rw'},
                                           curdir + '/contracts/': {'bind': '/flower/contracts', 'mode': 'rw'},
@@ -74,7 +74,7 @@ def model_download():
 
 @scheduler.task('interval', id='getTask', seconds=30)
 def getTask():
-    res=requests.get("http://43.229.28.89:8878/task")
+    res=requests.get("http://172.21.85.4:8878/task")
     if res.json() and res.json().get('code') == 200:
         requests.post("http://localhost:8877/start",json={'rm':False,'log':True})
         

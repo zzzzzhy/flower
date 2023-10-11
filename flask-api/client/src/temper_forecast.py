@@ -38,7 +38,7 @@ def upload_data(contractname, address , fn_name, fn_args):
             f"{tx_client.config.contract_dir}/{contractname}.abi")
         # (contract_abi,args) = abiparser.format_abi_args(fn_name,fn_args)
         args = fn_args
-        print("sendtx:",args)
+        #print("sendtx:",args)
         result = tx_client.sendRawTransaction(
             address, abiparser.contract_abi, fn_name, args)
         # 解析receipt里的log 和 相关的tx ,output
@@ -141,7 +141,7 @@ def load_data():
         dataset=test_data, batch_size=BATCH_SIZE, shuffle=False)
     return train_loader, val_loader, test_loader
 
-def train(model, device, train_loader, val_loader, epochs, addr):
+def train(model, device, train_loader, val_loader, epochs, addr,batchId):
     time_start = time.time()
     # model = DNN()
     # print(model)  # net architecture
@@ -189,10 +189,10 @@ def train(model, device, train_loader, val_loader, epochs, addr):
                         grad = np.trunc(param.grad * 10000)
                         # print(f"{name}: {grad.numpy().astype(dtype=int).tolist()}")
                         upload_data('Cred', addr, 'shareData', [
-                                    1, grad.numpy().astype(dtype=int).tolist()])
+                                    grad.numpy().astype(dtype=int).tolist(),batchId])
                     else:
                         print('addr is None')
-                    print(f"{name}: {param.grad}")
+                    #print(f"{name}: {param.grad}")
             # 如果比之前的mse要小，就保存模型
             # print("Best model on epoch: {}, val_mse: {:.4f}".format(epoch, val_MSE[-1]))
             torch.save(model.state_dict(), curdir

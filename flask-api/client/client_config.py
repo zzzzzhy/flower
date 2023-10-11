@@ -56,22 +56,4 @@ class client_config:
     bcos3_max_miner_version = 2 #目前最大版本号验证到3.2，后续新版本验证后持续更新
     # -------------------FISCO BCOS3.0 End-----------------------------------------
     
-    # --------------------------------------
-    # FISCO BCOS2.0的配置段，如连接FISCO BCOS3.0版本，无需关心此段
-    # keyword used to represent the RPC Protocol
-    PROTOCOL_RPC = "rpc"
-    # keyword used to represent the Channel Protocol
-    PROTOCOL_CHANNEL = "channel"
-    fiscoChainId = 1  # 链ID，和要通信的节点*必须*一致
-    groupid = 1  # 群组ID，和要通信的节点*必须*一致，如和其他群组通信，修改这一项，或者设置bcosclient.py里对应的成员变量
-    client_protocol = "channel"  # or PROTOCOL_CHANNEL to use channel prototol
-    # client_protocol = PROTOCOL_CHANNEL
-    remote_rpcurl = "http://127.0.0.1:8545"  # 采用rpc通信时，节点的rpc端口,和要通信的节点*必须*一致,如采用channel协议通信，这里可以留空
-    channel_host = "127.0.0.1"  # 采用channel通信时，节点的channel ip地址,如采用rpc协议通信，这里可以留空
-    channel_port = 20200  # 节点的channel 端口,如采用rpc协议通信，这里可以留空
-    channel_ca = "bin/ca.crt"  # 采用channel协议时，需要设置链证书,如采用rpc协议通信，这里可以留空
-    channel_node_cert = "/flower/bin/sdk.crt"  # 采用channel协议时，需要设置sdk证书,如采用rpc协议通信，这里可以留空
-    channel_node_key = "/flower/bin/sdk.key"  # 采用channel协议时，需要设置sdk私钥,如采用rpc协议通信，这里可以留空
-    channel_en_crt = "/flower/bin/gmensdk.crt"  # 仅国密双证书使用，加密证书
-    channel_en_key = "/flower/bin/gmensdk.key"  # 仅国密双证书使用，加密keys
-    node = "http://43.229.28.89:5924"
+    node = "http://172.21.85.4:5924"
