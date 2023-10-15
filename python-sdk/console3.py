@@ -109,9 +109,27 @@ def get_validcmds():
 
 Precompile.define_functions()
 
-validcmds = get_validcmds() + CmdBcos3RPC.get_cmds() + Precompile.get_all_cmd() + ["usage"]
+validcmds = get_validcmds() + CmdBcos3RPC.get_cmds() + Precompile.get_all_cmd() + ["usage"] + ['user']
 
-
+def user_call(inputparams):
+    from bcos3sdk.bcos3client import Bcos3Client
+    from client.datatype_parser import DatatypeParser
+    from client.signer_impl import Signer_ECDSA
+    from console_utils.console_common import match_input_params
+    paramtypes = [("account",str,None),("password",str,None),("contractname",str,None),("address",str,None),("fn_name",str,None),("fn_args",list,[])]
+    (account,password,contractname,address,fn_name,fn_args) = match_input_params(inputparams,paramtypes)
+    key_file = "{}/{}".format('./accounts', account+'.keystore')
+    Bcos3Client.default_from_account_signer = Signer_ECDSA.from_key_file(key_file, password)
+    bcos3client = Bcos3Client()
+    abiparser = DatatypeParser(f"{bcos3client.config.contract_dir}/{contractname}.abi")
+    try:
+        (contract_abi,args) = abiparser.format_abi_args(fn_name,fn_args)
+        print(args)
+        result = bcos3client.sendRawTransaction(address, abiparser.contract_abi, fn_name, args)
+        print("Call Result:", result)
+    except Exception as e:
+        common.print_error_msg("call", e)
+        
 def main(argv):
     try:
         command_parser = CommandParser(validcmds)
@@ -131,6 +149,9 @@ def main(argv):
         valid = check_cmd(cmd, validcmds)
         if valid is False:
             usage()
+            return
+        if cmd == "user":
+            user_call(inputparams)
             return
         if cmd == "usage":
             usage(inputparams)
