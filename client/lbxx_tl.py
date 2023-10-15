@@ -59,7 +59,7 @@ def tuili(input_data):
     with torch.no_grad():
         model.to(device)
         output = model(_data)
-    return output
+    return output.tolist()
 
 
 if __name__ == "__main__":
