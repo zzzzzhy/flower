@@ -152,4 +152,4 @@ if __name__ == '__main__':
     app.config.from_object(Config())
     scheduler.init_app(app)
     scheduler.start()
-    app.run(port=8877)
+    app.run(host='0.0.0.0',port=8877)
