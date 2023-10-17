@@ -119,17 +119,6 @@ def data_upload():
     return _use_call(account, password, address, contractname, fn_name, fn_args)
 
 
-@app.route("/data/get", methods=['POST'])
-def get_data():
-    args = request.get_json()
-    account = args.get("account", None)
-    password = args.get("password", None)
-    contractname = args.get("contractname", 'Cred')
-    address = args.get("address", '')
-    fn_name = args.get("fn", None)
-    return _use_call(account, password, address, contractname, fn_name, [])
-
-
 @app.route("/forward", methods=['POST'])
 def forward():
     args = request.get_json()
