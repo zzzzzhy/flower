@@ -85,10 +85,10 @@ def _use_call(account, password, address, contractname, fn_name, fn_args):
     if account is None or password is None:
         return {"code": 201, "msg": "account or password is None"}
     key_file = "{}/{}".format('./accounts', account+'.keystore')
-    Bcos3Client.default_from_account_signer = Signer_ECDSA.from_key_file(
-        key_file, password)
-    tx_client = Bcos3Client()
+
     try:
+        Bcos3Client.default_from_account_signer = Signer_ECDSA.from_key_file(key_file, password)
+        tx_client = Bcos3Client()
         abiparser = DatatypeParser(
             f"{tx_client.config.contract_dir}/{contractname}.abi")
         # print("sendtx:",fn_args)
