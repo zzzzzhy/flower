@@ -94,6 +94,8 @@ def _use_call(account, password, address, contractname, fn_name, fn_args):
         # print("sendtx:",fn_args)
         result = tx_client.sendRawTransaction(
             address, abiparser.contract_abi, fn_name, fn_args)
+        output = abiparser.parse_output(fn_name, result['output'])
+        result["parse_output"] = output
         return result
         # print(f"Transaction Output >> {output}")
         # if "logEntries" in result:
