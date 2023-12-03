@@ -1,3 +1,4 @@
+import atexit
 import json
 from flask import Flask
 from flask import request
@@ -6,12 +7,12 @@ import os
 import docker
 from flask_apscheduler import APScheduler
 import time
-from client_config import client_config
-from bcos3sdk.bcos3client import Bcos3Client
-from client.datatype_parser import DatatypeParser
-from client.signer_impl import Signer_ECDSA
-from lbxx_tl import tuili
-
+# from client_config import client_config
+# from bcos3sdk.bcos3client import Bcos3Client
+# from client.datatype_parser import DatatypeParser
+# from client.signer_impl import Signer_ECDSA
+# from lbxx_tl import tuili
+import numpy as np
 
 class Config(object):
     SCHEDULER_API_ENABLED = True
@@ -19,7 +20,7 @@ class Config(object):
 
 scheduler = APScheduler()
 ########### 正式环境用################
-client = docker.from_env()
+# client = docker.from_env()
 ########### 正式环境用################
 curdir = os.path.dirname(os.path.abspath(__file__))
 ########### 测试用################
@@ -121,11 +122,32 @@ def data_upload():
     return _use_call(account, password, address, contractname, fn_name, fn_args)
 
 
+def calculate_features(data):
+    timestamps = np.array([x[0] for x in data])
+    heart_rates = np.array([x[1] for x in data])
+    breathing_rates = np.array([x[2] for x in data])
+    # 2. 心率变化特征提取
+    heart_rate_mean = max(0,np.mean(heart_rates))
+    heart_rate_std = np.std(heart_rates)
+    heart_rate_max = np.max(heart_rates)
+    heart_rate_min = np.min(heart_rates)
+    heart_rate_variation = np.std(np.diff(heart_rates))  # 心率的变异系数
+    sleep_stages = np.array([x[3] for x in data])
+    abnormal_breathing = breathing_rates[np.where(sleep_stages != 0)]  # 异常呼吸率数据
+    abnormal_breathing_duration = max(0,np.mean(abnormal_breathing))
+    abnormal_breathing_count = np.sum(np.diff(sleep_stages) != 0)
+    while heart_rate_mean > 100:
+        heart_rate_mean = heart_rate_mean / 2
+    while abnormal_breathing_duration > 100:
+        abnormal_breathing_duration = abnormal_breathing_duration / 2
+    id = np.array([x[4] for x in data])
+    return [int(id[0]),heart_rate_mean,abnormal_breathing_duration]
+
 @app.route("/forward", methods=['POST'])
 def forward():
     args = request.get_json()
     input_data = args.get("input_data", [])
-    return {'code': 0, 'msg': tuili(input_data)}
+    return {'code': 0, 'result': calculate_features(input_data)}
 
 
 @scheduler.task('interval', id='getTask', seconds=30)
@@ -134,13 +156,27 @@ def getTask():
     if res.json() and res.json().get('code') == 200:
         requests.post("http://localhost:8877/start",
                       json={'rm': False, 'log': True})
-
     print('查询是否开启训练', res.json())
 
+app.config.from_object(Config())
+scheduler.init_app(app)
+def scheduler_init():
+    fcntl = __import__("fcntl")
+    f = open('scheduler.lock', 'wb')
+    try:
+        fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        scheduler.start()
+        app.logger.debug('Scheduler Started,---------------')
+    except:
+        pass
+    def unlock():
+        fcntl.flock(f, fcntl.LOCK_UN)
+        f.close()
+    atexit.register(unlock)
+scheduler_init()
 
+    
 if __name__ == '__main__':
     # app = Flask(__name__)
-    app.config.from_object(Config())
-    scheduler.init_app(app)
-    scheduler.start()
+
     app.run(host='0.0.0.0',port=8877)
