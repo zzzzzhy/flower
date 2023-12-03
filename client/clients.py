@@ -20,7 +20,7 @@ class Config(object):
 
 scheduler = APScheduler()
 ########### 正式环境用################
-# client = docker.from_env()
+client = docker.from_env()
 ########### 正式环境用################
 curdir = os.path.dirname(os.path.abspath(__file__))
 ########### 测试用################
