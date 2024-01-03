@@ -11,7 +11,6 @@ from client_config import client_config
 from bcos3sdk.bcos3client import Bcos3Client
 from client.datatype_parser import DatatypeParser
 from client.signer_impl import Signer_ECDSA
-# from lbxx_tl import tuili
 import numpy as np
 
 class Config(object):
@@ -121,27 +120,40 @@ def data_upload():
     fn_args = args.get("fn_args", [])
     return _use_call(account, password, address, contractname, fn_name, fn_args)
 
+class LSTMModel(torch.nn.Module):
+    def __init__(self, num_features, hidden_size, output_size):
+        super(LSTMModel, self).__init__()
+        self.hidden_size = hidden_size
+        self.lstm = torch.nn.LSTM(num_features, hidden_size)
+        self.linear = torch.nn.Linear(hidden_size, output_size)
+
+    def forward(self, inputs):
+        lstm_out, _ = self.lstm(inputs)
+        output = self.linear(lstm_out[:, -1, :])
+        return output
+# 定义超参数
+batch_size = 32 # 批次大小
+seq_length = 100 # 序列长度
+num_features = 3 # 输入特征的数量
+hidden_size = 512 # LSTM的隐藏单元数
+output_size = 2 # 输出特征的数量
+learning_rate = 0.01 # 学习率
+import torch
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+# 创建模型实例
+model = LSTMModel(num_features, hidden_size, output_size)
+model.load_state_dict(torch.load('src/model.pth'))
+model.eval()  
 
 def calculate_features(data):
-    timestamps = np.array([x[0] for x in data])
-    heart_rates = np.array([x[1] for x in data])
-    breathing_rates = np.array([x[2] for x in data])
-    # 2. 心率变化特征提取
-    heart_rate_mean = max(0,np.mean(heart_rates))
-    heart_rate_std = np.std(heart_rates)
-    heart_rate_max = np.max(heart_rates)
-    heart_rate_min = np.min(heart_rates)
-    heart_rate_variation = np.std(np.diff(heart_rates))  # 心率的变异系数
-    sleep_stages = np.array([x[3] for x in data])
-    abnormal_breathing = breathing_rates[np.where(sleep_stages != 0)]  # 异常呼吸率数据
-    abnormal_breathing_duration = max(0,np.mean(abnormal_breathing))
-    abnormal_breathing_count = np.sum(np.diff(sleep_stages) != 0)
-    while heart_rate_mean > 100:
-        heart_rate_mean = heart_rate_mean / 2
-    while abnormal_breathing_duration > 100:
-        abnormal_breathing_duration = abnormal_breathing_duration / 2
+    data_=np.array(data)
+    arr=np.delete(data_,3,1)
+    with torch.no_grad():
+        model.to(device)
+        output = model(torch.Tensor([arr.tolist()]))
     id = np.array([x[4] for x in data])
-    return [int(id[0]),heart_rate_mean,abnormal_breathing_duration]
+    return [int(id[0]),abs(output.tolist()[0][0]*100),abs(output.tolist()[0][1]*100)]
 
 @app.route("/forward", methods=['POST'])
 def forward():

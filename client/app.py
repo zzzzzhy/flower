@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision.transforms import Compose, Normalize, ToTensor
-from src.temper_forecast import train, load_data, test, DNN,init
+from src.train_forecast import train, load_data, test,init,LSTMModel,hidden_size,num_features,output_size
 import requests
 
 from eth_account.account import Account
@@ -40,8 +40,9 @@ DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 # #############################################################################
 
 # Load model and data (simple CNN, CIFAR-10)
-net = DNN().to(DEVICE)
-train_loader, val_loader, test_loader = load_data()
+# 创建模型实例
+net = LSTMModel(num_features, hidden_size, output_size).to(DEVICE)
+train_loader, val_loader = load_data()
 
 
 # Define Flower client
@@ -57,13 +58,13 @@ class FlowerClient(fl.client.NumPyClient):
     def fit(self, parameters, config):
         self.set_parameters(parameters)
         print("batchId-------->>",config.get('batchId',None))
-        train(net, DEVICE, train_loader, val_loader, epochs=100,addr=config.get('address',None),batchId=config.get('batchId',None))
+        train(net, DEVICE, train_loader, epochs=100,addr=config.get('address',None),batchId=config.get('batchId',None))
         return self.get_parameters(config={}), len(train_loader.dataset), {}
 
     def evaluate(self, parameters, config):
         self.set_parameters(parameters)
-        loss, accuracy = test(net, DEVICE, test_loader)
-        return loss, len(test_loader.dataset), {"accuracy": accuracy}
+        loss, accuracy = test(net, DEVICE, val_loader)
+        return loss, len(val_loader.dataset), {"accuracy": accuracy}
 
 
 if __name__ == "__main__":
